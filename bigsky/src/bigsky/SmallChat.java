@@ -6,18 +6,13 @@ import javax.swing.JFrame;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.AWTException;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.JTextPane;
@@ -83,7 +78,7 @@ public class SmallChat  {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		final SystemTray tray = SystemTray.getSystemTray();
+		//final SystemTray tray = SystemTray.getSystemTray();
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		
 		send = new JButton("Send");
@@ -201,6 +196,10 @@ public class SmallChat  {
 	}
 	
 	public void recievedText(TextMessage text) throws BadLocationException{
+		updateConv(text);
+	}
+	
+	public void sentText(TextMessage text) throws BadLocationException{
 		updateConv(text);
 	}
 

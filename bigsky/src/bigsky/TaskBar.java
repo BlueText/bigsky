@@ -16,8 +16,9 @@ import javax.swing.text.BadLocationException;
 public class TaskBar{
 
 
-public static Queue<TextMessage> textQueue = new Queue<TextMessage>();
+public static Queue<TextMessage> myTextQueue = new Queue<TextMessage>();
 public static ArrayList<TextMessage> textHistory = null;
+public static ArrayList<TextMessage> myTextHistory = null;
 public static TrayIcon notification = new TrayIcon(new ImageIcon(TaskBar.class.getResource("BlueText.gif"), "tray icon").getImage());
 public static SmallChat smallChatWindow = null;
 public static Contact me = new Contact("me", "me","me","");
@@ -39,38 +40,17 @@ private static final SystemTray tray = SystemTray.getSystemTray();
         }
         UIManager.put("swing.boldMetal", Boolean.FALSE);
         
+        smallChatWindow = createSmallChat(me,you);
         
        	Login login = new Login();
     	login.setVisible(true);
-        
-    	
-        
-        
-        
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-               initialize();
-             
-
-//               if(messageHost.conn.newMessage){
-//
-//               }
-
-//               if(!textQueue.isEmpty()){
-//            	   textHistory.add(textQueue.removeFirst());
-//            	   
-//            	   try {
-//            		   textHistory.get(textHistory.size()).setReceiver(me);
-//            		   textHistory.get(textHistory.size()).setSender(you);
-//            		   smallChatWindow.recievedText(textHistory.get(textHistory.size()));
-//				} catch (BadLocationException e) {
-//				}
-//               }
-
-               
-               
-               
+            	initialize();
+          
+                	
+               	
             }
         });
     }
@@ -141,8 +121,7 @@ private static final SystemTray tray = SystemTray.getSystemTray();
         smallChat.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	
-            	smallChatWindow = createSmallChat(me, you);
-           
+            	smallChatWindow.getFrmBluetext().setVisible(true);
             }
         });
                 
@@ -181,7 +160,7 @@ private static final SystemTray tray = SystemTray.getSystemTray();
     
     protected static SmallChat createSmallChat(Contact me, Contact you){
     	SmallChat smallChat = new SmallChat(me,you);
-    	smallChat.getFrmBluetext().setVisible(true);
+    	smallChat.getFrmBluetext().setVisible(false);
     	return smallChat;
     }
 

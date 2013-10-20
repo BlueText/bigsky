@@ -32,6 +32,7 @@ class ClientConn implements Runnable {
 					st1.setSender(TaskBar.you);
 					st1.setReceiver(TaskBar.me);
 				}
+				TaskBar.textHistory.add(st1);
 				TaskBar.trayIcon.displayMessage("New Message", "message from:\t" + st1.getSender(), MessageType.INFO);
 				TaskBar.smallChatWindow.recievedText(st1);
          	   //TaskBar.notification.displayMessage("New Message", "NEW MESSAGE", null);
@@ -59,7 +60,7 @@ class MessageHost extends Thread{
 			BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in));
 			ObjectOutputStream ps2 = new ObjectOutputStream(client.getOutputStream());
 
-			Contact tempContact = new Contact("Andy", "G",    "+1 5072542815", null);
+			//Contact tempContact = new Contact("Andy", "G",    "+1 5072542815", null);
 			//Contact tempContact = new Contact("Travis", "Reed", "+1 5633817739", null);
 
 			while (true) {
@@ -67,7 +68,10 @@ class MessageHost extends Thread{
 				if(servMsg == null ||  servMsg.equalsIgnoreCase("quit")){
 					return;
 				}
-				ps2.writeObject(new TextMessage(null, tempContact, servMsg));
+				TextMessage textMsg = new TextMessage(TaskBar.me, TaskBar.you, servMsg);
+				ps2.writeObject(textMsg);
+				TaskBar.myTextHistory.add(textMsg);
+				TaskBar.smallChatWindow.sentText(textMsg);
 				ps2.flush();
 			}
 		} catch(Exception e){
