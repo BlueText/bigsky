@@ -2,46 +2,25 @@ package bigsky;
 
 import java.awt.EventQueue;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import java.awt.Button;
-import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
+import java.awt.AWTException;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.TextArea;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Canvas;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.text.BadLocationException;
-import javax.swing.JToolBar;
-
-import java.awt.Dimension;
-
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
-
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Insets;
-import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
-
 import javax.swing.JTextPane;
-
-import com.nitido.utils.toaster.Toaster;
 
 public class SmallChat  {
 
@@ -49,20 +28,23 @@ public class SmallChat  {
 	private final JTextField textField = new JTextField();
 	private JButton btnName;
 	private JButton btnNewButton;
-	//private final JTextArea textArea = new JTextArea();
+
 	
 	
-	private final JButton send = new JButton("Send");
+	private JButton send;
 	private JScrollPane scrollPane;
 	private JTextPane textPane;
-	//private JScrollPane scroll;
+
 	
 	private int offset = 0;
+	private int textCount = 0;
 	
-	private Contact me = new Contact("Jonathan", "Mielke", "6185204620", "");
-	private Contact you = new Contact("Friendly", "Friend", "55555555555", "");
+	private Contact me;
+	private Contact you;
+	private TextMessage sent;
+
+	//private TrayIcon notification = new TrayIcon(new ImageIcon(TaskBar.class.getResource("BlueText.gif"), "tray icon").getImage());
 	
-	private Toaster toaster = new Toaster();
 
 	/**
 	 * Launch the application.
@@ -91,26 +73,9 @@ public class SmallChat  {
 	public SmallChat(Contact me, Contact you) {
 		initialize();
 		
+		this.me = me;
+		this.you = you;
 		
-		
-		send.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String msgOut = textField.getText();
-				String msgIn = "HEY!";
-				try {
-					//BufferedImage img = ImageIO.read(new File());
-					//toaster.setBackgroundImage(img);
-					toaster.showToaster("NEW MESSAGE");
-					updateConv(msgOut, msgIn);
-				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} 
-
-				
-				textField.setText("");
-			}
-		});
 		
 	}
 
@@ -118,8 +83,10 @@ public class SmallChat  {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		final SystemTray tray = SystemTray.getSystemTray();
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		
+		send = new JButton("Send");
 		
 		frmBluetext = new JFrame();
 		frmBluetext.getRootPane().setDefaultButton(send);
@@ -148,11 +115,7 @@ public class SmallChat  {
 		scrollPane.setViewportView(textPane);
 
 		
-		
-		
 //		scrollPane.setViewportView(textArea);
-		
-		
 //		textArea.setBackground(Color.LIGHT_GRAY);
 //		textArea.setForeground(Color.BLUE);
 //		textArea.setFont(new Font("Courier New", Font.PLAIN, 10));
@@ -160,6 +123,13 @@ public class SmallChat  {
 //		textArea.setTabSize(2);
 //		textArea.setWrapStyleWord(true);
 //		textArea.setEditable(false);
+		
+		
+//		try {
+//			tray.add(notification);
+//		} catch (AWTException e2) {
+//
+//		}
 		
 		
 		btnName = new JButton("Jonathan");
@@ -181,32 +151,43 @@ public class SmallChat  {
 		btnNewButton.setBounds(137, 1, 93, 23);
 		frmBluetext.getContentPane().add(btnNewButton);
 		
+		
+		send.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				sent = new TextMessage(me, you, textField.getText());
+
+				try {
+								
+					updateConv(sent);
+					
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+				textField.setText("");
+			}
+		});
+		
 
 	}
 	
 	
-	protected void updateConv(String msgSend, String msgRecieved) throws BadLocationException{
-		TextMessage textSent = new TextMessage(me, you, msgSend);
-		TextMessage textRecieved = new TextMessage(you, me, msgRecieved);
-		
-		
-		
-		
-		if(!textSent.getContent().trim().isEmpty()){
-			textSent.setContent(textSent.getSender().getFirstName() + ":\t" + textSent.getContent() + "\n\n");
-//			textArea.append(textSent.getSender().getFirstName() + ":\t" + textSent.getContent() + "\n\n");
-			textPane.getDocument().insertString(offset, textSent.getContent(), null);
-			offset+=textSent.getContent().length();
+	protected void updateConv(TextMessage text) throws BadLocationException{
+	
+		if(!text.getContent().trim().isEmpty() && text.getSender().equals(me)){
+			text.setContent(text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n");
+			textPane.getDocument().insertString(offset, text.getContent(), null);
+			offset+=text.getContent().length();
+			textCount++;
+			//notification.displayMessage("Message", "MESSAGE", TrayIcon.MessageType.NONE);
 		}
 		
-		
-		
-		
-		if(!textRecieved.getContent().trim().isEmpty()){
-			textRecieved.setContent(textRecieved.getSender().getFirstName() + ":\t" + textRecieved.getContent() + "\n\n");
-//			textArea.append(textRecieved.getSender().getFirstName() + ":\t" + textRecieved.getContent() + "\n\n");
-			textPane.getDocument().insertString(offset, textRecieved.getContent(), null);
-			offset+=textRecieved.getContent().length();
+			
+		if(!text.getContent().trim().isEmpty() && text.getSender().equals(you)){
+			text.setContent(text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n");
+			textPane.getDocument().insertString(offset, text.getContent(), null);
+			offset+=text.getContent().length();
 		}
 	}
 
@@ -217,6 +198,10 @@ public class SmallChat  {
 	
 	public Contact getFromContact(){
 		return you;
+	}
+	
+	public void recievedText(TextMessage text) throws BadLocationException{
+		updateConv(text);
 	}
 
 	public JFrame getFrmBluetext() {
