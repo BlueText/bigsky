@@ -1,8 +1,11 @@
-package bigsky;
+package bigsky.messaging;
 
 import java.net.*;
 import java.awt.TrayIcon.MessageType;
 import java.io.*;
+
+import bigsky.Contact;
+import bigsky.TextMessage;
 
 class ClientConn implements Runnable {
 	

@@ -1,4 +1,4 @@
-package bigsky;
+package bigsky.gui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -22,6 +22,7 @@ import java.sql.Statement;
 
 import javax.swing.JLabel;
 import javax.swing.JButton;
+
 
 public class Login extends JFrame {
 
