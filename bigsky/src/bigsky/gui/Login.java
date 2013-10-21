@@ -2,13 +2,11 @@ package bigsky.gui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JPasswordField;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +17,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.swing.JLabel;
 import javax.swing.JButton;
 
@@ -31,7 +28,6 @@ public class Login extends JFrame {
 	private JPasswordField passwordField_1;
 	private JLabel promptRegister;
 	private JLabel wrongInfo;
-	private static MessageHost messageHost = null;
 
 	/**
 	 * Launch the application.
@@ -104,15 +100,9 @@ public class Login extends JFrame {
             	            	
             	try {
 					if(login()){
-
-						dispose();
-						TaskBar.putIconInSystemTray();
-						if(messageHost==null){   
-				   	   		messageHost = new MessageHost();
-				   	   		messageHost.start();
-				        }
-						//Conversation convo = new Conversation();
-		            	//convo.getFrmBluetext().setVisible(true);
+										
+						Conversation convo = new Conversation();
+		            	convo.getFrmBluetext().setVisible(true);
 		            	phoneIP();						
 					}
 					else{
@@ -215,7 +205,4 @@ public class Login extends JFrame {
 		return true;
 		
 	}
-	
-	
-	
 }
