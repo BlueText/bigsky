@@ -46,6 +46,7 @@ class ClientConn implements Runnable {
 class MessageHost extends Thread{
 	
 	public ClientConn conn = null;
+	public static ObjectOutputStream ps2;
 	
 	public void run(){
 		
@@ -58,20 +59,19 @@ class MessageHost extends Thread{
 			conn = new ClientConn(client);
 			System.out.println("request accepted!\nBeginning of chat:");
 			BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in));
-			ObjectOutputStream ps2 = new ObjectOutputStream(client.getOutputStream());
+			ps2 = new ObjectOutputStream(client.getOutputStream());
 
 			//Contact tempContact = new Contact("Andy", "G",    "+1 5072542815", null);
 			//Contact tempContact = new Contact("Travis", "Reed", "+1 5633817739", null);
 
 			while (true) {
 				String servMsg = br2.readLine();
-				if(servMsg == null ||  servMsg.equalsIgnoreCase("quit")){
+				String textFromSmallChat = new String(TaskBar.myTextHistory.get(SmallChat.getMyTextCount()).getContent());
+				if(textFromSmallChat == null ||  textFromSmallChat.equalsIgnoreCase("quit")){
 					return;
 				}
-				TextMessage textMsg = new TextMessage(TaskBar.me, TaskBar.you, servMsg);
+				TextMessage textMsg = new TextMessage(TaskBar.me, TaskBar.you, textFromSmallChat);
 				ps2.writeObject(textMsg);
-				TaskBar.myTextHistory.add(textMsg);
-				TaskBar.smallChatWindow.sentText(textMsg);
 				ps2.flush();
 			}
 		} catch(Exception e){

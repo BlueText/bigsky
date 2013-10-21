@@ -10,6 +10,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.IOException;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
@@ -20,7 +22,7 @@ import javax.swing.JTextPane;
 public class SmallChat  {
 
 	private JFrame frmBluetext;
-	private final JTextField textField = new JTextField();
+	public static final JTextField textField = new JTextField();
 	private JButton btnName;
 	private JButton btnNewButton;
 
@@ -32,7 +34,7 @@ public class SmallChat  {
 
 	
 	private int offset = 0;
-	private int textCount = 0;
+	private static int textCount = -1;
 	
 	private Contact me;
 	private Contact you;
@@ -175,6 +177,15 @@ public class SmallChat  {
 			textPane.getDocument().insertString(offset, text.getContent(), null);
 			offset+=text.getContent().length();
 			textCount++;
+			TaskBar.myTextHistory.add(text);
+			
+			try {
+				MessageHost.ps2.writeObject(text);
+				MessageHost.ps2.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			//notification.displayMessage("Message", "MESSAGE", TrayIcon.MessageType.NONE);
 		}
 		
@@ -198,11 +209,11 @@ public class SmallChat  {
 	public void recievedText(TextMessage text) throws BadLocationException{
 		updateConv(text);
 	}
-	
-	public void sentText(TextMessage text) throws BadLocationException{
-		updateConv(text);
-	}
 
+	public static int getMyTextCount(){
+		return textCount;
+	}
+	
 	public JFrame getFrmBluetext() {
 		// TODO Auto-generated method stub
 		return frmBluetext;

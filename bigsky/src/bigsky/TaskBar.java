@@ -17,12 +17,12 @@ public class TaskBar{
 
 
 public static Queue<TextMessage> myTextQueue = new Queue<TextMessage>();
-public static ArrayList<TextMessage> textHistory = null;
-public static ArrayList<TextMessage> myTextHistory = null;
+public static ArrayList<TextMessage> textHistory = new ArrayList<TextMessage>();
+public static ArrayList<TextMessage> myTextHistory = new ArrayList<TextMessage>();
 public static TrayIcon notification = new TrayIcon(new ImageIcon(TaskBar.class.getResource("BlueText.gif"), "tray icon").getImage());
 public static SmallChat smallChatWindow = null;
 public static Contact me = new Contact("me", "me","me","");
-public static Contact you = new Contact("you", "you","you","");
+public static Contact you = new Contact("Andy", "G",    "+1 5072542815", null);
 public static final TrayIcon trayIcon = createTrayIconImage();
 private static final SystemTray tray = SystemTray.getSystemTray();
 
