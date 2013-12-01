@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JMenu;
@@ -28,6 +29,8 @@ import bigsky.Contact;
 import bigsky.Global;
 import bigsky.TaskBar;
 import bigsky.TextMessage;
+import bigsky.messaging.TextMessageManager;
+
 import java.awt.Toolkit;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,7 +39,7 @@ import java.io.IOException;
 public class SmallChat  {
 
 	private JFrame frmBluetext;
-	public static final JTextField textField = new JTextField();
+	public final JTextField textField = new JTextField();
 	private JButton btnName;
 	private JButton btnNewButton;
 	private ArrayList<TextMessage> myTextHistory = new ArrayList<TextMessage>();
@@ -45,7 +48,8 @@ public class SmallChat  {
 	private JButton send;
 	private JScrollPane scrollPane;
 	private JTextPane textPane;
-
+	private DefaultCaret caret;
+	private int winLocationY;
 	
 	private int offset = 0;
 	private int textCount = -1;
@@ -120,7 +124,13 @@ public class SmallChat  {
 		frmBluetext.setResizable(false);
 		frmBluetext.getContentPane().setBackground(Color.DARK_GRAY);
 		frmBluetext.setTitle("BlueText");
-		frmBluetext.setBounds(gd.getDisplayMode().getWidth() - 243, gd.getDisplayMode().getHeight() - 385, 236, 340);
+		if((gd.getDisplayMode().getHeight() - 385 * (winNum + 1)) > gd.getDisplayMode().getHeight()){
+			winLocationY = gd.getDisplayMode().getHeight();
+		}
+		else{
+			winLocationY = gd.getDisplayMode().getHeight() - 385 * (winNum + 1);
+		}
+		frmBluetext.setBounds(gd.getDisplayMode().getWidth() - 243, winLocationY, 236, 340);
 		frmBluetext.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmBluetext.getContentPane().setLayout(null);
 		
@@ -132,14 +142,18 @@ public class SmallChat  {
 		frmBluetext.getContentPane().add(textField);
 		textField.setColumns(10);
 		
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 24, 230, 264);
-		frmBluetext.getContentPane().add(scrollPane);
-		
 		textPane = new JTextPane();
+		caret = (DefaultCaret)textPane.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		textPane.setFont(new Font("Franklin Gothic Medium", Font.PLAIN, 12));
 		textPane.setEditable(false);
+
+		
+		scrollPane = new JScrollPane(textPane);
+		scrollPane.setBounds(0, 24, 230, 264);
+		frmBluetext.getContentPane().add(scrollPane);
 		scrollPane.setViewportView(textPane);
+
 
 		//Beginning of Settings Menu Bar
 			menuBar = new JMenuBar();
@@ -307,7 +321,9 @@ public class SmallChat  {
 	
 	protected void updateConv(TextMessage text) throws BadLocationException{
 		boolean check = false;
+		int temp = 0;
 		
+		//checks if user is sender
 		if(!text.getContent().trim().isEmpty() && text.getSender().getPhoneNumber().equalsIgnoreCase(me.getPhoneNumber())){
 			textPane.getDocument().insertString(offset, text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n", null);
 			offset += (text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n").length();
@@ -316,30 +332,37 @@ public class SmallChat  {
 			you.setSecondPhone("");
 			text.setReceiver(you);
 			
-			if(!TaskBar.doNotSend){
+			if(!TaskBar.doNotSend && TextMessageManager.sendTexts){
 				TaskBar.outGoingInSmall.add(text);
 			}
 			
-			if(TaskBar.outGoingInSmall.size() != 0){
+			if(TaskBar.outGoingInSmall.size() != 0 && TextMessageManager.sendTexts){
 				for(int i = 0; i < Conversation.currentConvs.size();i++){
 					if(TaskBar.outGoingInSmall.get(0).getReceiver().getPhoneNumber().equalsIgnoreCase(Conversation.currentConvs.get(i).getPhoneNumber())){
 						TaskBar.doNotSend = true;
 						Conversation.updateConv(text);
+						temp = Conversation.offset.get(i);
+						Conversation.textPanes.get(i).getDocument().insertString(Conversation.offset.get(i), text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n", null);
+						temp += (text.getSender().getFirstName() + ":\t" + text.getContent() + "\n\n").length();
+						Conversation.offset.set(i, temp);
 						TaskBar.outGoingInSmall.remove(0);
 						TaskBar.doNotSend = false;
 						check = true;
 						break;
 					}
 				}
-				if(check == false){
+				if(check == false && TextMessageManager.sendTexts){
 					TaskBar.doNotSend = true;
 					
 					JTextPane textPane = new JTextPane();
+					DefaultCaret caret = (DefaultCaret)textPane.getCaret();
+					caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 					textPane.setFont(new Font("Franklin Gothic Medium", Font.PLAIN, 12));
 					textPane.setEditable(false);
 					Conversation.textPanes.add(textPane);
 					JScrollPane scroll = new JScrollPane(textPane);
 					Global.conversationPane.addTab(text.getReceiver().getFirstName() + " " + text.getReceiver().getLastName(), null, scroll, null);
+					Global.conversationPane.setSelectedIndex(Global.conversationPane.getTabCount()-1);
 					Conversation.offset.add(new Integer(0));
 					Conversation.currentConvs.add(text.getReceiver());
 					
@@ -349,7 +372,7 @@ public class SmallChat  {
 				}
 			}
 
-			if(!TaskBar.doNotSend){
+			if(!TaskBar.doNotSend && TextMessageManager.sendTexts){
 				TaskBar.messageHost.sendObject(text);
 			}
 
