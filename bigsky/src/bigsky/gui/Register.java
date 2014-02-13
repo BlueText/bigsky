@@ -16,6 +16,9 @@ import java.sql.Statement;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 
+import bigsky.Global;
+import bigsky.Logger;
+
 @SuppressWarnings("serial")
 public class Register extends JFrame {
 
@@ -168,7 +171,7 @@ public class Register extends JFrame {
 						Login.setVisible(true);
 						finishLogin.setVisible(true);
 					} catch (Exception e1) {
-						System.out.println("Register error");
+						Logger.printOut("Register error");
 					}
 				}
 	        }
@@ -228,7 +231,7 @@ public class Register extends JFrame {
 				return false;
 			}
 		}catch(Exception e){
-			System.err.println("Register Checks error" + e.getMessage());
+			Logger.printErr("Register Checks error" + e.getMessage());
 		}
 		if(pass == null || confirmPass == null || pass.equals("")|| confirmPass.equals("")|| !pass.equals(confirmPass)){
 			passwordIncorrect.setVisible(true);
@@ -263,17 +266,17 @@ public class Register extends JFrame {
 	private void putInSystem(){
 		try{
 		Class.forName("com.mysql.jdbc.Driver");
-		Connection con = DriverManager.getConnection("jdbc:mysql://mysql.cs.iastate.edu/db30901", "adm309", "EXbDqudt4");
+		Connection con = DriverManager.getConnection(Global.DATABASE_URL, Global.DATABASE_USERNAME, Global.DATABASE_PASSWORD);
 		Statement stmt = con.createStatement();
 		
-		String query = "INSERT INTO testTable  (phoneNumber, lastName, firstName, password) VALUES " +
+		String query = "INSERT INTO " + Global.DATABASE_TABLENAME + "  (phoneNumber, lastName, firstName, password) VALUES " +
 				"('" + getUsername() + "', '" + getLastName() + "', '" + getFirstName() + "','" + getPassword(password) +
 				"')";
 	
 		stmt.executeUpdate(query);
 		con.close();	
 		}catch(Exception e){
-			System.err.println("put in system error");
+			Logger.printErr("put in system error");
 		}
 	}
 	
@@ -284,9 +287,9 @@ public class Register extends JFrame {
 	private boolean isInSystem(){
 		try{
 		Class.forName("com.mysql.jdbc.Driver");
-		Connection con = DriverManager.getConnection("jdbc:mysql://mysql.cs.iastate.edu/db30901", "adm309", "EXbDqudt4");
+		Connection con = DriverManager.getConnection(Global.DATABASE_URL, Global.DATABASE_USERNAME, Global.DATABASE_PASSWORD);
 	
-		ResultSet rs = con.createStatement().executeQuery("select * from testTable where phoneNumber='" + getUsername() + "'");
+		ResultSet rs = con.createStatement().executeQuery("select * from " + Global.DATABASE_TABLENAME + " where phoneNumber='" + getUsername() + "'");
 		if(rs.next() == true){
 			
 			rs.close();		
@@ -297,7 +300,7 @@ public class Register extends JFrame {
 		rs.close();		
 		con.close();
 		}catch(Exception e){
-			System.err.println("in system error");
+			Logger.printErr("in system error");
 		}
 		return false;
 	}

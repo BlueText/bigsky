@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 
 import bigsky.Contact;
 import bigsky.Global;
+import bigsky.Logger;
 import bigsky.TaskBar;
 import bigsky.messaging.MessageHost;
 import bigsky.messaging.RequestManager;
@@ -44,6 +45,8 @@ public class Login extends JFrame {
 	 * Create the frame.
 	 */
 	public Login() {
+		new Logger();
+		
         if (!System.getProperty("os.name").contains("Mac")){
         	setIconImage(Toolkit.getDefaultToolkit().getImage(Login.class.getResource("/bigsky/BlueText.gif")));
         }
@@ -95,7 +98,7 @@ public class Login extends JFrame {
 		image.add(wrongInfo);
 		wrongInfo.setVisible(false);
 		
-		promptRegister = new JLabel("Would you like to register");
+		promptRegister = new JLabel("Would you like to register?");
 		promptRegister.setForeground(Color.RED);
 		promptRegister.setBounds(259, 233, 192, 14);
 		image.add(promptRegister);
@@ -130,7 +133,7 @@ public class Login extends JFrame {
 						throw new Exception();
 					}
 				} catch (Exception e1) {
-					System.out.println("Login checks fail");}			
+					Logger.printOut("Login checks fail");}			
             }
         });
 		
@@ -182,11 +185,11 @@ public class Login extends JFrame {
 	public boolean login(){
 		try{
 		Class.forName("com.mysql.jdbc.Driver");
-		Connection con = DriverManager.getConnection("jdbc:mysql://mysql.cs.iastate.edu/db30901", "adm309", "EXbDqudt4");
+		Connection con = DriverManager.getConnection(Global.DATABASE_URL, Global.DATABASE_USERNAME, Global.DATABASE_PASSWORD);
 		Statement stmt = con.createStatement();
-		String iP =InetAddress.getLocalHost().getHostAddress();		
+		String iP =Inet4Address.getLocalHost().getHostAddress();		
 		
-		ResultSet rs = con.createStatement().executeQuery("select * from testTable where phoneNumber='" + getUsername() + "'");
+		ResultSet rs = con.createStatement().executeQuery("select * from " + Global.DATABASE_TABLENAME + " where phoneNumber='" + getUsername() + "'");
 	
 		if(rs.next() == false){
 			promptRegister.setVisible(true);
@@ -215,12 +218,12 @@ public class Login extends JFrame {
 
 		TaskBar.me = new Contact(rs.getString("firstName"),rs.getString("lastName"), rs.getString("phoneNumber"),null);
 
-		stmt.executeUpdate("UPDATE testTable SET IP_Computer='" + iP + "' WHERE phoneNumber='" + getUsername() + "';");
+		stmt.executeUpdate("UPDATE " + Global.DATABASE_TABLENAME + " SET IP_Computer='" + iP + "' WHERE phoneNumber='" + getUsername() + "';");
 		
 		rs.close();		
 		con.close();
 		}catch(Exception e){
-			System.err.println("Login fail" + e.getMessage());
+			Logger.printErr("Login fail" + e.getMessage());
 		}
 		
 		return true;
@@ -247,7 +250,7 @@ public class Login extends JFrame {
 				prop.store(new FileOutputStream(getUsername() + ".properties"),null);
 				
 			} catch (Exception e1) {
-				System.err.println("file load problem.");
+				Logger.printErr("file load problem.");
 			}
 		}
 	}
@@ -260,9 +263,9 @@ public class Login extends JFrame {
 	    	Contact me = null;
     	try{
 	    	Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://mysql.cs.iastate.edu/db30901", "adm309", "EXbDqudt4");
+	    	Connection con = DriverManager.getConnection(Global.DATABASE_URL, Global.DATABASE_USERNAME, Global.DATABASE_PASSWORD);
 			
-			ResultSet rs = con.createStatement().executeQuery("select * from testTable where phoneNumber='" + Global.username + "'");
+			ResultSet rs = con.createStatement().executeQuery("select * from " + Global.DATABASE_TABLENAME + " where phoneNumber='" + Global.username + "'");
 	    	
 			if(rs.next()){
 				me = new Contact(rs.getString("firstName"),rs.getString("lastName"), rs.getString("phoneNumber"),null);
@@ -271,7 +274,7 @@ public class Login extends JFrame {
 			rs.close();		
 			con.close();
 		}catch(Exception e){
-			System.err.println("Login fail" + e.getMessage());
+			Logger.printErr("Login fail" + e.getMessage());
 		}
 		
     	return me;
@@ -290,7 +293,7 @@ public class Login extends JFrame {
 		try {
 			prop.load(new FileInputStream(user +".properties"));
 		} catch (Exception e) {
-			System.err.println("File load problem.");
+			Logger.printErr("File load problem.");
 		}
 		
 		prop.setProperty(property, value);
@@ -298,7 +301,7 @@ public class Login extends JFrame {
 		try {
 			prop.store(new FileOutputStream(user+".properties"),null);
 		} catch (Exception e) {
-			System.err.println("file store problem.");
+			Logger.printErr("file store problem.");
 		}
 		
 	}
@@ -319,7 +322,7 @@ public class Login extends JFrame {
 		try{
 			prop.store(new FileOutputStream("system.properties"), null);
 		}catch(Exception e1){
-			System.err.println("System store file problem");				
+			Logger.printErr("System store file problem");				
 		}
 	}
 }

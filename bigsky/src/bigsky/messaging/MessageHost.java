@@ -7,6 +7,7 @@ import bigsky.BlueTextRequest;
 import bigsky.BlueTextRequest.REQUEST;
 import bigsky.BlueTextResponse;
 import bigsky.Contact;
+import bigsky.Logger;
 import bigsky.TaskBar;
 import bigsky.TextMessage;
 import bigsky.gui.Conversation;
@@ -54,7 +55,7 @@ class ReadThread implements Runnable
 				{
 					TextMessage txtMessage = (TextMessage) streamObject;
 					txtMessage.setReceiver(user);
-					System.out.println("Client: " + txtMessage.getContent());					
+					Logger.printOut("Client: " + txtMessage.getContent());					
 					TaskBar.myTextArray.add(txtMessage);					
 					synchronized(TaskBar.textManager){
 						TaskBar.textManager.notify();
@@ -69,11 +70,10 @@ class ReadThread implements Runnable
 					}
 				}
 				else{
-					System.err.println("ERROR: Unknown object sent through stream");
+					Logger.printErr("ERROR: Unknown object sent through stream");
 				}
 			}
 		} catch (Exception e) {
-			System.err.println("MessageHost's ClientConn is now closing");
 			if(TaskBar.messageHost != null){
 				TaskBar.messageHost.closeHost(true);
 			}
@@ -120,7 +120,7 @@ public class MessageHost extends Thread{
 			sendObject(new BlueTextRequest(REQUEST.BATTERY_PERCENTAGE, null));
 		} catch(Exception e){
 			e.printStackTrace();
-			System.err.println("Caught exception while setting up MessageHost" + e.getMessage());
+			Logger.printErr("Caught exception while setting up MessageHost" + e.getMessage());
 			closeHost(true);
 		}
 	}
@@ -134,6 +134,8 @@ public class MessageHost extends Thread{
 	 *            method completes, taking the user back to the login screen.
 	 */
 	public void closeHost(boolean callLogout){
+		
+		Logger.printOut("MessageHost's ClientConn is now closing");
 		
 		if(alreadyCleaningUp){
 			return;
@@ -184,7 +186,7 @@ public class MessageHost extends Thread{
 			ps2.flush();
 		} catch(Exception e){
 			e.printStackTrace();
-			System.err.println("Got exception in MessageHost.sendObject(): " + e.getMessage());
+			Logger.printErr("Got exception in MessageHost.sendObject(): " + e.getMessage());
 		}
 	}
 }

@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 
 import bigsky.Global;
+import bigsky.Logger;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -54,7 +55,7 @@ public class PopUp_FacebookContacts extends JFrame{
 				try {
 					java.awt.Desktop.getDesktop().browse(new URI("https://developers.facebook.com/tools/explorer?method=GET&path=me%2Ffriends"));
 				} catch (Exception e1) {
-					System.err.println("Unable to open web page, please go to this website: https://developers.facebook.com/tools/explorer?method=GET&path=me%2Ffriends");
+					Logger.printErr("Unable to open web page, please go to this website: https://developers.facebook.com/tools/explorer?method=GET&path=me%2Ffriends");
 				}
 			}
 		});
@@ -106,7 +107,7 @@ public class PopUp_FacebookContacts extends JFrame{
 			public void actionPerformed(ActionEvent arg0) {
 				String accessToken = textField.getText();
 				if(accessToken == null || accessToken.length() < 10){
-					System.out.println("Please paste access token above.");
+					Logger.printOut("Please paste access token above.");
 				}
 				Global.ACCESS_TOKEN = accessToken;
 				thisFrame.setVisible(false);
